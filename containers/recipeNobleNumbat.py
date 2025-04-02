@@ -7,7 +7,9 @@ import json
 from pathlib import Path
 
 # Get correct config
-config_file = Path(USERARG.get("config-file", "../configs/TheaNobleNumbat.json"))
+#config_file = Path(USERARG.get("config-file", "../configs/TheaNobleNumbat.json"))
+config_file = Path(USERARG.get("config-file", "../configs/LeonardoNobleNumbat.json"))
+
 if not config_file.exists():
     raise RuntimeError(
         "cannot access {}: No such file or directory".format(config_file)
@@ -151,7 +153,7 @@ parmetis = bb.generic_build(
         "CC=mpicc CXX=mpic++ make config shared=1 prefix={}".format(parmetis_prefix),
         "make -j$(nproc)",
         "make -j$(nproc) install",
-        "cp /usr/lib/aarch64-linux-gnu/libmetis.so.5.1.0 {}/lib/libmetis.so".format(parmetis_prefix),
+        "cp /usr/lib/{}-linux-gnu/libmetis.so.5.1.0 {}/lib/libmetis.so".format(config["arch"], parmetis_prefix),
         "cp /usr/include/metis.h {}/include/metis.h".format(parmetis_prefix),
     ],
     devel_environment=parmetis_env,
@@ -399,7 +401,7 @@ elmer = hpccm.building_blocks.generic_cmake(
     cmake_opts=[
         '-DParMetis_LIBRARIES="/opt/parmetis/lib/libmetis.so;/opt/parmetis/lib/libparmetis.so"',
         '-DParMetis_INCLUDE_DIR="/opt/parmetis/include"',
-        '-DMetis_LIBRARIES="/usr/lib/aarch64-linux-gnu/libmetis.so.5.1.0"',
+        '-DMetis_LIBRARIES="/usr/lib/{}-linux-gnu/libmetis.so.5.1.0"'.format(config["arch"]),
         '-DMetis_INCLUDE_DIR="/usr/include/metis.h"',
         "-DWITH_MPI:BOOL=TRUE",
         "-DWITH_LUA:BOOL=TRUE",
