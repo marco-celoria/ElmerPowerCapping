@@ -9,5 +9,5 @@ Dockerfile
 # Exclude .sif images
 *.sif
 
-# Exclude steps directory 
-steps/
+# Exclude runs directory 
+runs/
