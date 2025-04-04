@@ -3,7 +3,7 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --nodes=1
 #SBATCH --partition=boost_usr_prod
-#SBATCH --time=2:30:00
+#SBATCH --time=3:30:00
 #SBATCH --exclusive
 #SBATCH --mem=0
 #SBATCH --job-name=run_Elmer_leonardo_N1_n4_c8_ML4
