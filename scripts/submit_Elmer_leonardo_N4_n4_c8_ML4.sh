@@ -21,10 +21,10 @@ export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 export PMIX_MCA_gds=hash
 export PMIX_MCA_psec=native
 
-export GMSH="srun -N1 -n1 singularity exec --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif gmsh"
-export ELMERGRID="srun -N1 -n1 singularity exec --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif ElmerGrid"
+export GMSH="srun -N1 -n1 singularity exec -B ${RUNDIR}/Greenland_SSA --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif gmsh"
+export ELMERGRID="srun -N1 -n1 singularity exec -B ${RUNDIR}/Greenland_SSA --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif ElmerGrid"
 export ELMERSOLVER="mpirun -mca btl \"^openib\" singularity exec -B ${RUNDIR}/Greenland_SSA --env  UCX_POSIX_USE_PROC_LINK=n --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif ElmerSolver_mpi"
-export ELMERF90="srun -N1 -n1 singularity exec --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif elmerf90"
+export ELMERF90="srun -N1 -n1 singularity exec -B ${RUNDIR}/Greenland_SSA --nv ${CONTAINERSDIR}/Elmer_ubuntu24_leonardo.sif elmerf90"
 
 mkdir -p ${RUNDIR}
 
@@ -38,11 +38,16 @@ ${ELMERF90} Scalar_OUTPUT.F90 -o Scalar_OUTPUT
 
 start=$(date +%s)
 
-cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/preprocess.sh" "leonardo" && cd -
+cd ${RUNDIR} 
+for node in `scontrol show hostname`; do
+  echo $node >> "${RUNDIR}/nodelist.txt"
+done
+srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_start.sh 
+cd -
 
 ${ELMERSOLVER} SSA_amgx_ML4.sif
 
-cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/postprocess.sh" "leonardo" && cd -
+cd ${RUNDIR} && srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_stop.sh && cd -
 
 end=$(date +%s)
 

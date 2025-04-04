@@ -3,14 +3,14 @@
 #SBATCH --cpus-per-task=8
 #SBATCH --nodes=1
 #SBATCH --partition=boost_usr_prod
-#SBATCH --time=0:30:00
+#SBATCH --time=3:30:00
 #SBATCH --exclusive
 #SBATCH --mem=0
 #SBATCH --job-name=run_Elmer_leonardo_N1_n4_c8_ML4
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 #SBATCH --gres=gpu:4
-#SBATCH --qos=boost_qos_dbg
+##SBATCH --qos=boost_qos_dbg
 #SBATCH --exclusive
 
 module load openmpi/4.1.6--gcc--12.2.0
@@ -38,11 +38,16 @@ ${ELMERF90} Scalar_OUTPUT.F90 -o Scalar_OUTPUT
 
 start=$(date +%s)
 
-cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/preprocess.sh" "leonardo" && cd -
+cd ${RUNDIR} 
+for node in `scontrol show hostname`; do
+  echo $node >> "${RUNDIR}/nodelist.txt"
+done
+srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_start.sh 
+cd -
 
 ${ELMERSOLVER} SSA_amgx_ML4.sif
 
-cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/postprocess.sh" "leonardo" && cd -
+cd ${RUNDIR} && srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_stop.sh && cd -
 
 end=$(date +%s)
 
