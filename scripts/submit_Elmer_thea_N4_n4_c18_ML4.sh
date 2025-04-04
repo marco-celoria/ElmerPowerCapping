@@ -33,12 +33,7 @@ ${ELMERF90} Scalar_OUTPUT.F90 -o Scalar_OUTPUT
 
 start=$(date +%s)
 
-cd ${RUNDIR}
-for node in `scontrol show hostname`; do
-  echo $node >> "${RUNDIR}/nodelist.txt"
-done
-srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_start.sh
-cd -
+cd ${RUNDIR} && srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_start.sh && cd -
 
 ${ELMERSOLVER} SSA_amgx_ML4.sif
 
