@@ -131,6 +131,10 @@ queries=""
 # Percent of time over the past sample period during which one or more kernels was executing on the GPU.
 # The sample period may be between 1 second and 1/6 second depending on the product.
 
+# utilization.memory
+# Percent of time over the past sample period during which global (device) memory was being read or written.
+# The sample period may be between 1 second and 1/6 second depending on the product.
+
 # memory.used
 # Total memory allocated by active contexts.
 
@@ -149,6 +153,7 @@ queries+=",clocks.mem"
 queries+=",temperature.gpu"
 queries+=",temperature.memory"
 queries+=",utilization.gpu"
+queries+=",utilization.memory"
 queries+=",memory.used"
 queries+=",pstate"
 
