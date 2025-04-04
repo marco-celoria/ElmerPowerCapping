@@ -102,6 +102,19 @@ queries=""
 # Only available if power management is supported.
 # This reading is accurate to within +/- 5 watts.
 
+# enforced.power.limit
+# The power management algorithm's power ceiling, in watts.
+# Total board power draw is manipulated by the power management algorithm such that it stays under this value.
+# This value is the minimum of various power limiters.
+
+# power.limit
+# The software power limit in watts. Set by software like nvidia-smi.
+# On Kepler devices Power Limit can be adjusted using [-pl | --power-limit=] switches.
+
+# power.default_limit
+# The default power management algorithm's power ceiling, in watts.
+# Power Limit will be set back to Default Power Limit after driver unload.
+
 # clocks.current.sm or clocks.sm
 # Current frequency of SM (Streaming Multiprocessor) clock.
 
@@ -128,6 +141,9 @@ queries=""
 queries+="index"
 queries+=",timestamp"
 queries+=",power.draw"
+queries+=",enforced.power.limit"
+queries+=",power.limit"
+queries+=",power.default_limit"
 queries+=",clocks.sm"
 queries+=",clocks.mem"
 queries+=",temperature.gpu"
