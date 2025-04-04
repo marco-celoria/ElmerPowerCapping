@@ -1,7 +1,5 @@
 # Excluded directories
-__pycache__/
-.venv/
-.vscode/
+powercap_venv/
 
 # Exclude Dockerfiles
 Dockerfile
