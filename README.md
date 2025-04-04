@@ -1,8 +1,15 @@
-# powercapping
-HPCCM recipies and container files (docker, singularity) for GH powercapping analysis.
+# Elmer power capping
+HPCCM recipies and container files (docker, singularity) for Grace-Hopper powercapping analysis.
 
-python3 -m venv powercap_venv 
+Elmer repository is `https://github.com/ElmerCSC/elmerfem`
+
+Adapted from `https://github.com/amasini0/powercapping`
+
+To install
+
+```
+python3 -m venv powercap_venv
 source powercap_venv/bin/activate
-pip install -r requirements.txt 
-
+pip install -r requirements.txt
+```
 
