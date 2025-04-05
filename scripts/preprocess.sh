@@ -1,12 +1,13 @@
 #!/bin/bash
 # start nvidia-smi on all nodes
 
-arc="$1"
+ARC="$1"
+MESH_LEVEL="$2"
 
-if [[ $arc == "leonardo" ]]; then
-   source ./config_leonardo.sh
-elif [[ $arc == "thea" ]]; then
-   source ./config_thea.sh
+if [[ $ARC == "leonardo" ]]; then
+   source ./config_leonardo.sh $MESH_LEVEL
+elif [[ $ARC == "thea" ]]; then
+   source ./config_thea.sh $MESH_LEVEL
 else
    echo "Select either 'leonardo' or 'thea'"
    exit

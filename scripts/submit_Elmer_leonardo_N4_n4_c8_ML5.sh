@@ -15,14 +15,7 @@
 
 module load openmpi/4.1.6--gcc--12.2.0
 
-export MESH_LEVEL=5
-
-export BASEDIR="/leonardo_work/cin_staff/mcelori1/ChEESE/ElmerPowerCapping"
-export RUNDIR="${BASEDIR}/runs/run_Elmer_leonardo_N${SLURM_NNODES}_n${SLURM_NTASKS_PER_NODE}_c${SLURM_CPUS_PER_TASK}_ML${MESH_LEVEL}_${SLURM_JOB_ID}"
-export SCRIPTSDIR="${BASEDIR}/scripts"
-export CONTAINERSDIR="${BASEDIR}/containers"
-export INPUTSDIR="${BASEDIR}/inputs"
-
+source config_leonardo.sh 5
 
 export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 export PMIX_MCA_gds=hash
@@ -45,11 +38,11 @@ ${ELMERF90} Scalar_OUTPUT.F90 -o Scalar_OUTPUT
 
 start=$(date +%s)
 
-cd ${RUNDIR} && srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_start.sh && cd -
+cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/preprocess.sh" "leonardo" "5" && cd -
 
 ${ELMERSOLVER} SSA_amgx_ML5.sif
 
-cd ${RUNDIR} && srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_stop.sh && cd -
+cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/postprocess.sh" "leonardo" "5" && cd -
 
 end=$(date +%s)
 
