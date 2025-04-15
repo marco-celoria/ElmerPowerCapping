@@ -82,6 +82,56 @@ Stage: devel
         librdmacm1
     rm -rf /var/lib/apt/lists/*
 
+# KNEM version 1.1.4
+%post
+    apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        ca-certificates \
+        git
+    rm -rf /var/lib/apt/lists/*
+%post
+    cd /
+    mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 --branch knem-1.1.4 https://gitlab.inria.fr/knem/knem.git knem && cd -
+    mkdir -p /opt/knem
+    cd /var/tmp/knem
+    mkdir -p /opt/knem/include
+    cp common/*.h /opt/knem/include
+    rm -rf /var/tmp/knem
+%environment
+    export CPATH=/opt/knem/include:$CPATH
+%post
+    export CPATH=/opt/knem/include:$CPATH
+
+# XPMEM branch master
+%post
+    apt-get update -y
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        autoconf \
+        automake \
+        ca-certificates \
+        file \
+        git \
+        libtool \
+        make
+    rm -rf /var/lib/apt/lists/*
+%post
+    cd /
+    mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 --branch master https://github.com/hjelmn/xpmem.git xpmem && cd -
+    cd /var/tmp/xpmem
+    autoreconf --install
+    cd /var/tmp/xpmem &&   ./configure --prefix=/opt/xpmem --disable-kernel-module
+    make -j$(nproc)
+    make -j$(nproc) install
+    rm -rf /var/tmp/xpmem
+%environment
+    export CPATH=/opt/xpmem/include:$CPATH
+    export LD_LIBRARY_PATH=/opt/xpmem/lib:$LD_LIBRARY_PATH
+    export LIBRARY_PATH=/opt/xpmem/lib:$LIBRARY_PATH
+%post
+    export CPATH=/opt/xpmem/include:$CPATH
+    export LD_LIBRARY_PATH=/opt/xpmem/lib:$LD_LIBRARY_PATH
+    export LIBRARY_PATH=/opt/xpmem/lib:$LIBRARY_PATH
+
 # GDRCOPY version 2.2
 %post
     apt-get update -y
@@ -126,7 +176,7 @@ Stage: devel
     mkdir -p /var/tmp && cd /var/tmp && git clone --depth=1 --branch v1.18.0 https://github.com/openucx/ucx.git ucx && cd -
     cd /var/tmp/ucx
     ./autogen.sh
-    cd /var/tmp/ucx &&   ./configure --prefix=/opt/ucx --disable-assertions --disable-debug --disable-doxygen-doc --disable-logging --disable-params-check --enable-mt --enable-optimizations --with-cuda=/usr/local/cuda --with-gdrcopy=/opt/gdrcopy --with-rdmacm --with-verbs --without-knem --without-xpmem
+    cd /var/tmp/ucx &&   ./configure --prefix=/opt/ucx --disable-assertions --disable-debug --disable-doxygen-doc --disable-logging --disable-params-check --enable-mt --enable-optimizations --with-cuda=/usr/local/cuda --with-gdrcopy=/opt/gdrcopy --with-knem=/opt/knem --with-rdmacm --with-verbs --with-xpmem=/opt/xpmem
     make -j$(nproc)
     make -j$(nproc) install
     rm -rf /var/tmp/ucx
@@ -449,6 +499,26 @@ From: docker.io/nvidia/cuda@sha256:37a25acfc46f9ec05b7131639ed9467810b45522a3dfa
         librdmacm-dev \
         librdmacm1
     rm -rf /var/lib/apt/lists/*
+
+# KNEM
+%files from devel
+    /opt/knem /opt/knem
+%environment
+    export CPATH=/opt/knem/include:$CPATH
+%post
+    export CPATH=/opt/knem/include:$CPATH
+
+# XPMEM
+%files from devel
+    /opt/xpmem /opt/xpmem
+%environment
+    export CPATH=/opt/xpmem/include:$CPATH
+    export LD_LIBRARY_PATH=/opt/xpmem/lib:$LD_LIBRARY_PATH
+    export LIBRARY_PATH=/opt/xpmem/lib:$LIBRARY_PATH
+%post
+    export CPATH=/opt/xpmem/include:$CPATH
+    export LD_LIBRARY_PATH=/opt/xpmem/lib:$LD_LIBRARY_PATH
+    export LIBRARY_PATH=/opt/xpmem/lib:$LIBRARY_PATH
 
 # GDRCOPY
 %files from devel
