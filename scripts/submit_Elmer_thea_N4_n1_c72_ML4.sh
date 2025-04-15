@@ -10,11 +10,18 @@
 #SBATCH --output=%x_%j.out
 #SBATCH --error=%x_%j.err
 
+export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+
 # Set the directory structure environment
-source config_thea.sh 4
+MESH_LEVEL=4
+
+export BASEDIR="/global/scratch/users/mceloria/ElmerPowerCapping"
+export RUNDIR="${BASEDIR}/runs/run_Elmer_thea_N${SLURM_NNODES}_n${SLURM_NTASKS_PER_NODE}_c${SLURM_CPUS_PER_TASK}_ML${MESH_LEVEL}_${SLURM_JOB_ID}"
+export SCRIPTSDIR="${BASEDIR}/scripts"
+export CONTAINERSDIR="${BASEDIR}/containers"
+export INPUTSDIR="${BASEDIR}/inputs"
 
 # Set the OMP and MPI environmental variables
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 export PMIX_MCA_gds=hash
 export PMIX_MCA_psec=native
 
@@ -31,18 +38,20 @@ cd ${RUNDIR}/Greenland_SSA
 
 # Partition the mesh and set the input files
 ${ELMERGRID} 2 2 MESH -partdual -metiskway ${SLURM_NTASKS}
+
 ${ELMERF90} Scalar_OUTPUT.F90 -o Scalar_OUTPUT
 
-
 start=$(date +%s)
-# Energy measurements start here, for instance
-# cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/preprocess.sh" "thea" "4" && cd -
 
-# Start the Elmer simulation 
-${ELMERSOLVER} SSA_amgx_ML4.sif
+# Energy measurements start here
+srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 --overlap ${SCRIPTSDIR}/nvsmi_start.sh & 
+
+# Start the Elmer simulation
+${ELMERSOLVER} "SSA_amgx_ML${MESH_LEVEL}.sif"
 
 # Energy measurements stop here
-# cd ${SCRIPTSDIR} && source "${SCRIPTSDIR}/postprocess.sh" "thea" "4" && cd -
+srun -N${SLURM_NNODES} -n${SLURM_NNODES} --ntasks-per-node=1 ${SCRIPTSDIR}/nvsmi_stop.sh 
+
 end=$(date +%s)
 
 echo "Elapsed time: $(($end-$start)) s"

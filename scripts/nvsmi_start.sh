@@ -168,7 +168,7 @@ period=1000
 
 # monitoring
 #nvidia-smi --query-gpu=$queries --format=$format -lms $period >> $node.nvsmi.txt 2>&1 &
-nvidia-smi --query-gpu=${queries} --format=${format} -lms ${period} > ${CURRENTDIR}/${node}.nvsmi.txt &
+nvidia-smi --query-gpu=${queries} --format=${format} -lms ${period} -f  ${CURRENTDIR}/${node}.nvsmi.txt 
 
 # the process in background will be killed using 'pkill' command,
 # however an alternative version based on process id (PID) follows
