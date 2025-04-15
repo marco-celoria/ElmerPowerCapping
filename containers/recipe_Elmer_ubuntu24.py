@@ -7,9 +7,9 @@ import json
 from pathlib import Path
 
 # Get correct config
-config_file = Path(USERARG.get("config-file", "../configs/ubuntu24_thea.json"))
+#config_file = Path(USERARG.get("config-file", "../configs/ubuntu24_thea.json"))
 #config_file = Path(USERARG.get("config-file", "../configs/ubuntu24_leonardo.json"))
-
+config_file = Path(USERARG.get("config-file", "../configs/ubuntu24_jedi.json"))
 if not config_file.exists():
     raise RuntimeError(
         "cannot access {}: No such file or directory".format(config_file)
